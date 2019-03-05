@@ -27,13 +27,9 @@ import java.util.stream.Collectors;
  * Image Controller to handle image requests.
  */
 @RestController
-//@RequestMapping("/images")
 public class ImageController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ImageController.class);
-
     private final HashSet<String> allowedExtensions = new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "gif"));
-
 
     @Autowired
     private ImageService imageService;
