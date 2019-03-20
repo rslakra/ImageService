@@ -1,6 +1,20 @@
+/*
+ * Copyright 2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.rslakra.imageservice;
 
-import com.rslakra.imageservice.controller.ImageController;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,67 +24,54 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.InputStream;
-import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ImageServiceApplicationTests {
 
-    private final String TEMP_FOLDER = "/Users/lakra/Downloads/Temp";
+	private final String TEMP_FOLDER = "/Users/lakra/Downloads/Temp";
 
+	@LocalServerPort
+	private int port;
 
-    @LocalServerPort
-    private int port;
+	@Autowired
+	TestRestTemplate testRestTemplate;
 
-    @Autowired
-    TestRestTemplate testRestTemplate;
+	@Autowired
+	WebApplicationContext webApplicationContext;
 
-    @Autowired
-    WebApplicationContext webApplicationContext;
+	/**
+	 * @return
+	 */
+	private final String getUrlForService(String serviceName) {
+		return "http://localhost:" + port + (serviceName.startsWith("/") ? serviceName : "/" + serviceName);
+	}
 
-    /**
-     * @return
-     */
-    private final String getUrlForService(String serviceName) {
-        return "http://localhost:" + port + (serviceName.startsWith("/") ? serviceName : "/" + serviceName);
-    }
+	/**
+	 * Test for loading all images.
+	 */
+	@Test
+	public void shouldReturn200ForLoadAllImages() {
+		ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(getUrlForService("loadAllImages"),
+				String.class);
+		Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+	}
 
-    /**
-     * Test for loading all images.
-     */
-    @Test
-    public void shouldReturn200ForLoadAllImages() {
-        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(getUrlForService("loadAllImages"), String.class);
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-    }
+	/**
+	 * Test for loading all images.
+	 */
+	@Test
+	public void shouldReturn404ForDownloadImageId1() {
+		ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(getUrlForService("download/1"),
+				String.class);
+		Assert.assertEquals(HttpStatus.valueOf(404), responseEntity.getStatusCode());
+	}
 
-    /**
-     * Test for loading all images.
-     */
-    @Test
-    public void shouldReturn404ForDownloadImageId1() {
-        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(getUrlForService("download/1"), String.class);
-        Assert.assertEquals(HttpStatus.valueOf(404), responseEntity.getStatusCode());
-    }
-
-    @Test
-    public void contextLoads() {
-    }
-
+	@Test
+	public void contextLoads() {
+	}
 
 }
